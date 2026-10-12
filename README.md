@@ -1,34 +1,56 @@
-# Live API watcher sample
+# Live API sample
 
-A small Node app that calls OpenAI's Responses API over HTTP. It has no SDK
-dependency, recorded changelog, canned provider response, expected patch, or
-special scan configuration.
+A small Node support workflow that uses three recognizable startup APIs:
 
-The initial app uses the model selected for this sample project. The actual
-OpenAI deprecation page is discovered and reread by CodeKite's normal watcher.
-The source contains no release title, migration instructions, date, or preferred
-replacement, so the assessment and repair come from the live API evidence.
+- OpenAI drafts a reply to a customer support request.
+- Supabase stores the request and draft for human review.
+- Stripe Checkout starts a paid support-plan subscription.
 
-To try it with the normal portal flow:
+The OpenAI call uses the normal Responses API over HTTP. Stripe and Supabase use
+their official Node clients. The app contains no recorded changelog, canned
+provider response, expected repair, or special scanner configuration. Its
+OpenAI model identifier is a deliberate positive control so a live matching
+deprecation can be detected; the upstream notice and repair are not stored here.
 
-1. Seed a new private repository with
-   `npm run fly:live-api -- seed OWNER/codekite-fly-live-api`.
-2. Open `/fly`, connect that repository, select OpenAI, and enable monitoring.
-3. Start First Look. It scans the real GitHub main branch, sets up the ordinary
-   changelog watcher, and assesses whatever OpenAI has actually published.
-4. If CodeKite judges a live change to need a repair, it asks the repair agent to
-   propose a source patch, uses the independent reviewer, and opens a draft PR
-   through the normal product path. No test publishes an event or chooses the
-   repair contents.
+## Configure the app
 
-`npm run fly:live-api -- run OWNER/codekite-fly-live-api` invokes the same
-production scan, subscription, watcher, First Look, repair, review, and GitHub
-PR operations directly for repeatable backend testing. The GitHub base branch
-must stay unchanged during a run. The job receipt records actual discovered
-source URLs, entry dates and outcomes under `.data/fly-live-api-e2e/`; it does not
-record the GitHub token or model credentials.
+Use a Supabase project and apply `supabase/migrations/20261012000000_support_requests.sql`
+in its SQL Editor. The table has row-level security enabled and no public policy;
+the sample accesses it only from the server with a Supabase secret key. Never put
+that key in browser code.
 
-Live runs depend on the model finding a relevant recent API notice in the
-provider's current public changelog. If it finds no current source or no
-repository-specific impact, the ordinary `no-source-found` or `all_clear` outcome
-is correct: this sample never manufactures a PR trigger.
+Set these variables in the server environment:
+
+```text
+OPENAI_API_KEY=...
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SECRET_KEY=...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_ID=price_...
+```
+
+Create a recurring Price in Stripe test mode. The sample exports
+`createSupportDraft({ email, prompt })` and
+`createSubscriptionCheckout({ email, successUrl, cancelUrl })` from
+`src/support-workflow.mjs`; neither function makes a provider request until
+called.
+
+## Exercise live CodeKite discovery
+
+The repository is private. To make a fresh copy, run the seed command from the
+CodeKite checkout with `gh` authenticated:
+
+```sh
+npm run fly:live-api -- seed OWNER/codekite-fly-live-api
+```
+
+Then connect the repository through `/fly`, select the detected dependencies,
+and run First Look. The direct backend path used for repeatable live discovery is:
+
+```sh
+npm run fly:live-api -- run OWNER/codekite-fly-live-api
+```
+
+The run reads current provider sources and the repository's actual default
+branch. It does not inject releases or patches. A draft PR is conditional on
+CodeKite finding a relevant, repairable live change.
