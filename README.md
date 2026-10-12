@@ -52,5 +52,8 @@ npm run fly:live-api -- run OWNER/codekite-fly-live-api
 ```
 
 The run reads current provider sources and the repository's actual default
-branch. It does not inject releases or patches. A draft PR is conditional on
+branch. It first copies the configured product's saved watch records into
+isolated test storage, so it also exercises refresh of existing source lists.
+It uses the setup UI's backend First Look entry point; browser interactions
+are a separate check. It does not inject releases or patches. A draft PR is conditional on
 CodeKite finding a relevant, repairable live change.
