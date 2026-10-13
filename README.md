@@ -16,15 +16,18 @@ deprecation can be detected; the upstream notice and repair are not stored here.
 
 Use a Supabase project and apply `supabase/migrations/20261012000000_support_requests.sql`
 in its SQL Editor. The table has row-level security enabled and no public policy;
-the sample accesses it only from the server with a Supabase secret key. Never put
-that key in browser code.
+the sample accesses it only from the server. For the live migration check the
+sample currently reads Supabase's legacy service-role key and passes Stripe's
+recently removed Checkout parameter. The source notices are still discovered
+from provider documentation; no release event or expected patch is checked in.
+Never put a Supabase service-role or secret key in browser code.
 
 Set these variables in the server environment:
 
 ```text
 OPENAI_API_KEY=...
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SECRET_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PRICE_ID=price_...
 ```
