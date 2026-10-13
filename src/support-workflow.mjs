@@ -9,7 +9,8 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  const secretKey = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), secretKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
