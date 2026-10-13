@@ -1,0 +1,39 @@
+name: Verify PR source against the live OpenAI API
+
+on:
+  push:
+    branches: [codex/verify-pr3-live-api]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify application files match the exact PR head
+        id: source
+        run: node scripts/verify-pr-source.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: '3'
+      - run: npm ci
+      - name: Check the actual application modules
+        run: |
+          node --check src/draft-response.mjs
+          node --check src/support-workflow.mjs
+          node --input-type=module -e "await import('./src/support-workflow.mjs')"
+      - name: Call the live API through the unchanged application
+        run: node --test tests/live-openai.test.mjs
+        env:
+          OPENAI_API_KEY: ${{ secrets.CODEKITE_PR3_LIVE_API_TEST_KEY }}
+          VERIFIED_PR_SHA: ${{ steps.source.outputs.sha }}
