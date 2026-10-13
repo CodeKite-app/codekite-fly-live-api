@@ -23,11 +23,18 @@ recently removed Checkout parameter. The source notices are still discovered
 from provider documentation; no release event or expected patch is checked in.
 Never put a Supabase service-role or secret key in browser code.
 
+The server prefers `SUPABASE_SECRET_KEY` and temporarily falls back to
+`SUPABASE_SERVICE_ROLE_KEY`. Provision a secret key for the same project in the
+server environment, verify support-draft writes, then migrate other legacy-key
+consumers before deactivating the service-role key. The sample contains no real
+credential values.
+
 Set these variables in the server environment:
 
 ```text
 OPENAI_API_KEY=...
 SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SECRET_KEY=sb_secret_...
 SUPABASE_SERVICE_ROLE_KEY=...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PRICE_ID=price_...
