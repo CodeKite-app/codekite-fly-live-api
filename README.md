@@ -4,6 +4,7 @@ A small Node support workflow that uses three recognizable startup APIs:
 
 - OpenAI drafts a reply to a customer support request.
 - Supabase stores the request and draft for human review.
+- Supabase Auth signs support agents into a browser portal with passwords and optional passkeys.
 - Stripe Checkout starts a paid support-plan subscription.
 
 The OpenAI call uses the normal Responses API over HTTP. Stripe and Supabase use
@@ -37,6 +38,12 @@ Create a recurring Price in Stripe test mode. The sample exports
 `createSubscriptionCheckout({ email, successUrl, cancelUrl })` from
 `src/support-workflow.mjs`; neither function makes a provider request until
 called.
+
+The browser portal uses `createSupportPortalAuth({ supabaseUrl, publishableKey,
+passkeySignInEnabled })` from `src/support-portal-auth.mjs`. Supply a public
+publishable project key. Each organization controls whether passkey sign-in is
+enabled; the default setting is disabled. The returned password and passkey
+sign-in methods return the authenticated user and session or throw the SDK error.
 
 ## Exercise live CodeKite discovery
 
