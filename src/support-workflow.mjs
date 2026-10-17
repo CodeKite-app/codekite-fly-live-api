@@ -15,7 +15,7 @@ function supportDatabase() {
 }
 
 function billingClient() {
-  return new Stripe(required('STRIPE_SECRET_KEY'));
+  return new Stripe(required('STRIPE_SECRET_KEY'), { apiVersion: '2026-09-30.endive' });
 }
 
 /** Draft a reply and persist it for a support agent to review. */
