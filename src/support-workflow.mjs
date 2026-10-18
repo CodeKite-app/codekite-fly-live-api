@@ -9,7 +9,17 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Optional, owner-configured Node environment input: SUPABASE_SECRET_KEY is a
+  // plain-string server secret key, not the Edge Functions JSON key map.
+  // When nonempty it takes precedence over SUPABASE_SERVICE_ROLE_KEY; otherwise
+  // the existing required legacy key remains the fallback during rollout.
+  // Owner rollout is still required: create a Supabase secret key and configure
+  // it in this backend's runtime environment, never in source or browser code.
+  // Verify support-request writes with the new key before relying on it. Keep
+  // the legacy variable available during rollout and legacy credentials active
+  // until all their consumers have migrated and been verified.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -47,7 +57,7 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    payment_method_types: ['card'],
+    allowed_payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
