@@ -9,7 +9,13 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Optional SUPABASE_SECRET_KEY holds a plain server secret key and takes precedence.
+  // If unset or empty, retain SUPABASE_SERVICE_ROLE_KEY while both key types coexist.
+  // The owner must provision and deploy the secret key in the server environment only,
+  // then verify support-request writes and audit legacy callers before deactivating
+  // the legacy key. This source step alone does not complete the migration.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -47,7 +53,7 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    payment_method_types: ['card'],
+    allowed_payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
