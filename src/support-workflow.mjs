@@ -9,6 +9,15 @@ function required(name) {
 }
 
 function supportDatabase() {
+  // Optional, owner-configured Node environment input: SUPABASE_SECRET_KEY is a
+  // plain-string server secret key, not the Edge Functions JSON key map.
+  // When nonempty it takes precedence over SUPABASE_SERVICE_ROLE_KEY; otherwise
+  // the existing required legacy key remains the fallback during rollout.
+  // Owner rollout is still required: create a Supabase secret key and configure
+  // it in this backend's runtime environment, never in source or browser code.
+  // Verify support-request writes with the new key before relying on it. Keep
+  // the legacy variable available during rollout and legacy credentials active
+  // until all their consumers have migrated and been verified.
   const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
   return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
