@@ -9,7 +9,13 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Optional server-only SUPABASE_SECRET_KEY takes precedence; when absent or empty,
+  // retain the required SUPABASE_SERVICE_ROLE_KEY fallback for existing deployments.
+  // Migration remains incomplete: the owner must provision a secret key for the
+  // same SUPABASE_URL project, deploy it in SUPABASE_SECRET_KEY with this source,
+  // verify support-draft saves use it, and audit other legacy-key consumers before
+  // deactivating legacy keys. Never expose either privileged key in browser code.
+  return createClient(required('SUPABASE_URL'), process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY'), {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
