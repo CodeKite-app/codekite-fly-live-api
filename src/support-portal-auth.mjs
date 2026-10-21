@@ -20,6 +20,8 @@ export function createSupportPortalAuth({ supabaseUrl, publishableKey, passkeySi
 
     /** Organizations enable passkey sign-in in their portal settings; it is disabled by default. */
     async signInWithPasskey() {
+      // Supabase no longer enforces auth.experimental.passkey; enforce the portal setting here.
+      if (!passkeySignInEnabled) throw new Error('Passkey sign-in is disabled.');
       const { data, error } = await client.auth.signInWithPasskey();
       if (error) throw error;
       return { user: data.user, session: data.session };
