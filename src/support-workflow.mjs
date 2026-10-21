@@ -47,7 +47,6 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
