@@ -9,7 +9,13 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Optional SUPABASE_SECRET_KEY takes precedence; retain SUPABASE_SERVICE_ROLE_KEY
+  // as a fallback while Supabase supports both key types. Both bypass RLS:
+  // keep them on this trusted backend, never in client code or source control.
+  // Owner rollout: provision and deploy SUPABASE_SECRET_KEY, verify draft writes,
+  // and audit all legacy-key consumers before deactivating the legacy keys.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -56,3 +62,4 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
   if (!session.url) throw new Error('Stripe did not return a checkout URL.');
   return { id: session.id, url: session.url };
 }
+
