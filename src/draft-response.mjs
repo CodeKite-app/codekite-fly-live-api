@@ -8,7 +8,7 @@ export async function draftSupportResponse(prompt, apiKey = process.env.OPENAI_A
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'gpt-6-sol', input: prompt }),
+    body: JSON.stringify({ model: 'gpt-5.3-codex', input: prompt }),
   });
   const result = await response.json();
   if (!response.ok) throw new Error(`OpenAI API: ${result.error?.message || `HTTP ${response.status}`}`);
@@ -17,4 +17,3 @@ export async function draftSupportResponse(prompt, apiKey = process.env.OPENAI_A
   if (!text) throw new Error('OpenAI returned no response text.');
   return text;
 }
-
