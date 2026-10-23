@@ -47,7 +47,7 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    payment_method_types: ['card'],
+    allowed_payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
@@ -56,3 +56,4 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
   if (!session.url) throw new Error('Stripe did not return a checkout URL.');
   return { id: session.id, url: session.url };
 }
+
