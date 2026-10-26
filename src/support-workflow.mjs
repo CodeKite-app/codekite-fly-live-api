@@ -9,7 +9,12 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Prefer the optional SUPABASE_SECRET_KEY; retain the legacy key as a fallback.
+  // Both keys bypass RLS: provision the new key only on the trusted server,
+  // deploy this source, and verify support-draft writes before retiring legacy keys.
+  // Audit all remaining legacy-key consumers before deactivating them in Supabase.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
