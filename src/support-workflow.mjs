@@ -9,7 +9,13 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Prefer the server-only SUPABASE_SECRET_KEY; retain SUPABASE_SERVICE_ROLE_KEY
+  // as a fallback while both key types coexist during Supabase's migration.
+  // Provision the secret key for this project in the server environment and
+  // deploy, then verify support-draft writes and migrate remaining legacy
+  // callers before deactivating legacy keys. Never expose either key to clients.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
