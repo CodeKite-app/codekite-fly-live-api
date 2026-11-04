@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "maxNodeModuleJsDepth": 0
+  },
+  "include": [
+    "src/**/*.mjs",
+    "scripts/**/*.mjs"
+  ]
+}

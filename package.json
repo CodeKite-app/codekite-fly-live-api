@@ -1,0 +1,20 @@
+{
+  "name": "codekite-fly-daytona-api-sample",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "tsc -p jsconfig.json",
+    "smoke": "node scripts/live-smoke.mjs"
+  },
+  "dependencies": {
+    "@daytonaio/sdk": "0.227.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "6.0.3"
+  }
+}
