@@ -26,6 +26,15 @@ await step('run a Python submission', async () => {
   return `${run.durationMs} ms`;
 });
 
+await step('run a TypeScript submission', async () => {
+  const run = await runSubmission({
+    language: 'typescript',
+    code: `const greet = (name: string): string => \`hello \${name}\`;\nconsole.log(greet('${nonce}'));`,
+  });
+  assert(run.exitCode === 0, `exit code ${run.exitCode}: ${run.output}`);
+  assert(run.output.includes(`hello ${nonce}`), `unexpected output: ${run.output}`);
+});
+
 await step('report a failing submission', async () => {
   const run = await runSubmission({ code: 'import sys\nsys.exit(3)' });
   assert(run.exitCode === 3, `expected exit code 3, got ${run.exitCode}`);

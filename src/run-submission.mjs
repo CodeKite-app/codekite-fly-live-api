@@ -2,7 +2,7 @@ import { appLabel, sandboxClient } from './daytona.mjs';
 
 const runtimes = {
   python: { file: 'main.py', command: 'python3 main.py' },
-  typescript: { file: 'main.ts', command: 'npx --yes tsx main.ts' },
+  typescript: { file: 'main.ts', command: 'node --experimental-strip-types main.ts' },
   javascript: { file: 'main.js', command: 'node main.js' },
 };
 
