@@ -51,6 +51,10 @@ each workflow end to end against your Daytona organization: a submission's
 output and exit code, network isolation, a private preview served through its
 token, and the REST listing. It uses a few seconds of sandbox time.
 
+The `check` workflow runs `npm run check` on every push and pull request. On
+pushes to `main` and manual runs it also runs `npm run smoke` when the
+repository has a `DAYTONA_API_KEY` Actions secret, and skips it otherwise.
+
 ## Exercise live CodeKite discovery
 
 To make a fresh copy, run the seed command from the CodeKite checkout with `gh`

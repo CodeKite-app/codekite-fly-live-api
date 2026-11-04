@@ -1,0 +1,40 @@
+name: check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+  smoke:
+    # Creates and deletes real sandboxes. Runs only on main and manual runs,
+    # and only when the repository has a DAYTONA_API_KEY secret.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      DAYTONA_API_KEY: ${{ secrets.DAYTONA_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Live Daytona smoke test
+        if: env.DAYTONA_API_KEY != ''
+        run: npm run smoke
+      - name: Skip without credentials
+        if: env.DAYTONA_API_KEY == ''
+        run: echo "::notice::DAYTONA_API_KEY is not set; live smoke test skipped."
