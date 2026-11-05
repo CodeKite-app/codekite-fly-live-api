@@ -9,7 +9,12 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Prefer SUPABASE_SECRET_KEY; retain SUPABASE_SERVICE_ROLE_KEY as a fallback
+  // while both key types coexist. Keep the secret key on this trusted backend.
+  // Owners must provision and deploy the secret key, then verify all callers
+  // have migrated before deactivating legacy keys.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
