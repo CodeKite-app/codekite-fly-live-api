@@ -9,7 +9,13 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // SUPABASE_SECRET_KEY is an optional backend-only secret key and takes precedence.
+  // Keep SUPABASE_SERVICE_ROLE_KEY as fallback while both key types coexist.
+  // Owners must provision the secret key, set SUPABASE_SECRET_KEY in the backend
+  // environment, and deploy this change. Verify all legacy-key callers have migrated
+  // before deactivating legacy keys; never expose either credential to clients.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
