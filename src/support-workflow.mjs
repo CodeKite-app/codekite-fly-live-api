@@ -9,13 +9,7 @@ function required(name) {
 }
 
 function supportDatabase() {
-  // SUPABASE_SECRET_KEY is an optional backend-only secret key and takes precedence.
-  // Keep SUPABASE_SERVICE_ROLE_KEY as fallback while both key types coexist.
-  // Owners must provision the secret key, set SUPABASE_SECRET_KEY in the backend
-  // environment, and deploy this change. Verify all legacy-key callers have migrated
-  // before deactivating legacy keys; never expose either credential to clients.
-  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
-  return createClient(required('SUPABASE_URL'), key, {
+  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -53,7 +47,7 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    allowed_payment_method_types: ['card'],
+    payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
@@ -62,4 +56,3 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
   if (!session.url) throw new Error('Stripe did not return a checkout URL.');
   return { id: session.id, url: session.url };
 }
-
