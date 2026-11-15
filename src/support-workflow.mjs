@@ -9,11 +9,7 @@ function required(name) {
 }
 
 function supportDatabase() {
-  // Optional SUPABASE_SECRET_KEY takes precedence; retain the legacy key fallback.
-  // Both keys bypass RLS: keep them only on this trusted backend.
-  // Deploy with a secret key for SUPABASE_URL's project and verify draft writes;
-  // check all legacy-key consumers before deactivating the project's legacy keys.
-  return createClient(required('SUPABASE_URL'), process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY'), {
+  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -51,7 +47,7 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    allowed_payment_method_types: ['card'],
+    payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
@@ -60,4 +56,3 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
   if (!session.url) throw new Error('Stripe did not return a checkout URL.');
   return { id: session.id, url: session.url };
 }
-
