@@ -9,7 +9,12 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // On this trusted backend, a nonempty SUPABASE_SECRET_KEY takes precedence;
+  // retain SUPABASE_SERVICE_ROLE_KEY as a fallback while both key types coexist.
+  // Owners must provision the same project's secret, deploy it, verify draft writes,
+  // and audit all legacy-key callers before deactivating legacy keys.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -56,3 +61,4 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
   if (!session.url) throw new Error('Stripe did not return a checkout URL.');
   return { id: session.id, url: session.url };
 }
+
