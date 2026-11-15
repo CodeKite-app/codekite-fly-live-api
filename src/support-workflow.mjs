@@ -9,7 +9,11 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Optional SUPABASE_SECRET_KEY takes precedence; retain the legacy key fallback.
+  // Both keys bypass RLS: keep them only on this trusted backend.
+  // Deploy with a secret key for SUPABASE_URL's project and verify draft writes;
+  // check all legacy-key consumers before deactivating the project's legacy keys.
+  return createClient(required('SUPABASE_URL'), process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY'), {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
