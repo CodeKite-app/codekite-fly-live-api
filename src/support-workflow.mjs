@@ -29,7 +29,7 @@ export async function createSupportDraft({ email, prompt }) {
     .insert({ customer_email: email.trim(), prompt, draft, status: 'needs_review' })
     .select('id, created_at')
     .single();
-  if (error) throw new Error(`Could not save the support request: ${error.message}`);
+  if (error) throw new Error('Could not save the support request.');
   return { id: data.id, createdAt: data.created_at, draft, status: 'needs_review' };
 }
 
