@@ -18,7 +18,10 @@ export function createSupportPortalAuth({ supabaseUrl, publishableKey, passkeySi
       return { user: data.user, session: data.session };
     },
 
-    /** Organizations enable passkey sign-in in their portal settings; it is disabled by default. */
+    /**
+     * Organizations enable passkey sign-in in their portal settings; it is disabled by default.
+     * The setting configures the SDK; this method remains exposed and delegates to the SDK.
+     */
     async signInWithPasskey() {
       const { data, error } = await client.auth.signInWithPasskey();
       if (error) throw error;
