@@ -9,7 +9,11 @@ function required(name) {
 }
 
 function supportDatabase() {
-  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
+  // Prefer SUPABASE_SECRET_KEY; retain the legacy key fallback during migration.
+  // Provision the same project's secret key only on the trusted server and deploy.
+  // Verify support-draft writes and migrate all legacy consumers before deactivation.
+  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
