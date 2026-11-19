@@ -9,11 +9,7 @@ function required(name) {
 }
 
 function supportDatabase() {
-  // Prefer SUPABASE_SECRET_KEY; retain the legacy key fallback during migration.
-  // Provision the same project's secret key only on the trusted server and deploy.
-  // Verify support-draft writes and migrate all legacy consumers before deactivation.
-  const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
-  return createClient(required('SUPABASE_URL'), key, {
+  return createClient(required('SUPABASE_URL'), required('SUPABASE_SERVICE_ROLE_KEY'), {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -51,7 +47,7 @@ export async function createSubscriptionCheckout({ email, successUrl, cancelUrl 
 
   const session = await billingClient().checkout.sessions.create({
     mode: 'subscription',
-    allowed_payment_method_types: ['card'],
+    payment_method_types: ['card'],
     line_items: [{ price: required('STRIPE_PRICE_ID'), quantity: 1 }],
     customer_email: email.trim(),
     success_url: successUrl,
