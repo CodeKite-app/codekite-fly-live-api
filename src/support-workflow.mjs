@@ -9,8 +9,10 @@ function required(name) {
 }
 
 function supportDatabase() {
-  // Set SUPABASE_SECRET_KEY to prefer the new backend key; otherwise retain the legacy fallback.
-  // Create and deploy a secret key, then check all legacy-key users before deactivating it.
+  // As documented in README.md, prefer SUPABASE_SECRET_KEY in the server environment.
+  // If unset or empty, retain SUPABASE_SERVICE_ROLE_KEY as the legacy fallback.
+  // Provision and deploy a same-project secret key, verify support-draft writes,
+  // then migrate all other legacy-key consumers before deactivating the legacy key.
   const key = process.env.SUPABASE_SECRET_KEY || required('SUPABASE_SERVICE_ROLE_KEY');
   return createClient(required('SUPABASE_URL'), key, {
     auth: { autoRefreshToken: false, persistSession: false },
